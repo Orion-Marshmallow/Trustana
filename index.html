@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solana Builder OS — SuperteamNG Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f0e8;
+    --paper2: #ede8df;
+    --sol: #9945FF;
+    --sol-light: rgba(153,69,255,0.12);
+    --green: #14F195;
+    --green-light: rgba(20,241,149,0.1);
+    --red: #ff4d4d;
+    --red-light: rgba(255,77,77,0.1);
+    --muted: #8a7f6e;
+    --border: #d4cec3;
+    --accent: #1a1a2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Grain texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 64px 0 0;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 0;
+  }
+
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-tag::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 14vw, 120px);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  h1 .highlight {
+    color: var(--sol);
+    display: block;
+  }
+
+  .header-sub {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 20px 0 28px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 420px;
+    font-weight: 500;
+  }
+
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+    flex-shrink: 0;
+  }
+
+  /* ── MANDATE ── */
+  .mandate {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 36px 40px;
+    margin: 0 -28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mandate::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    right: 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 200px;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .mandate-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+  }
+
+  .mandate-text {
+    font-size: clamp(18px, 3vw, 26px);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--paper);
+    max-width: 580px;
+  }
+
+  .mandate-text em {
+    color: var(--green);
+    font-style: normal;
+  }
+
+  /* ── SECTION STRUCTURE ── */
+  .section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-of-type { border-bottom: none; }
+
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .step-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(38px, 7vw, 60px);
+    line-height: 1;
+    letter-spacing: 0.5px;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+
+  /* ── STOP / DO CARDS ── */
+  .dual-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 580px) { .dual-cards { grid-template-columns: 1fr; } }
+
+  .card-stop, .card-do {
+    padding: 20px 22px;
+    border-radius: 4px;
+  }
+
+  .card-stop {
+    background: var(--red-light);
+    border: 1px solid rgba(255,77,77,0.25);
+  }
+
+  .card-do {
+    background: var(--green-light);
+    border: 1px solid rgba(20,241,149,0.3);
+  }
+
+  .card-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-stop .card-header { color: var(--red); }
+  .card-do .card-header { color: #0a8c5a; }
+
+  .card-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-list li {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink);
+    padding-left: 16px;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .card-stop .card-list li::before { content: '✕'; position: absolute; left: 0; color: var(--red); font-size: 10px; top: 2px; }
+  .card-do .card-list li::before { content: '✓'; position: absolute; left: 0; color: #0a8c5a; font-size: 11px; top: 1px; }
+
+  /* ── NICHE PICKER ── */
+  .niche-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 24px 0;
+  }
+
+  .niche-card {
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: white;
+    position: relative;
+  }
+
+  .niche-card:hover, .niche-card.active {
+    border-color: var(--sol);
+    background: var(--sol-light);
+  }
+
+  .niche-card.active .niche-rec {
+    display: block;
+  }
+
+  .niche-icon { font-size: 22px; margin-bottom: 8px; }
+  .niche-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .niche-why { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+  .niche-rec {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--sol);
+    line-height: 1.6;
+  }
+
+  /* ── PROJECT REVEAL ── */
+  .project-reveal {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-reveal::before {
+    content: 'REMITCHAIN';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(255,255,255,0.04);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .project-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .project-one-liner {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 20px;
+  }
+
+  .project-insight {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(245,240,232,0.85);
+    margin-bottom: 24px;
+    border-left: 2px solid var(--green);
+    padding-left: 16px;
+  }
+
+  .project-mvp {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    padding: 16px 20px;
+  }
+
+  .project-mvp-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .mvp-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mvp-list li {
+    font-size: 13px;
+    color: rgba(245,240,232,0.8);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .mvp-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+  }
+
+  /* ── SHIP LOOP ── */
+  .ship-loop {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 28px 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .loop-step {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    flex-shrink: 0;
+    text-align: center;
+    min-width: 110px;
+  }
+
+  .loop-icon { font-size: 20px; margin-bottom: 6px; }
+  .loop-name { font-size: 12px; font-weight: 700; }
+  .loop-sub { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 3px; }
+
+  .loop-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    color: var(--sol);
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── BUILD STEPS ── */
+  .build-steps { display: flex; flex-direction: column; gap: 0; }
+
+  .build-step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: white;
+    transition: background 0.15s;
+  }
+
+  .build-step:first-child { border-radius: 4px 4px 0 0; }
+  .build-step:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 4px 4px; }
+  .build-step:hover { background: var(--paper); }
+
+  .build-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+    transition: color 0.15s;
+  }
+
+  .build-step:hover .build-num { color: var(--sol); }
+
+  .build-body { padding: 16px 20px; }
+  .build-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .build-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .build-stack {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .stack-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-rust { border-color: rgba(247,147,26,0.4); color: #c77b00; background: rgba(247,147,26,0.08); }
+  .tag-ts { border-color: rgba(0,122,204,0.4); color: #0068b3; background: rgba(0,122,204,0.08); }
+  .tag-react { border-color: rgba(20,241,149,0.4); color: #0a8c5a; background: rgba(20,241,149,0.08); }
+  .tag-sol { border-color: rgba(153,69,255,0.4); color: var(--sol); background: var(--sol-light); }
+
+  /* ── DISTRIBUTE / CONTENT ── */
+  .channel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .channel-item {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    align-items: start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.15s;
+  }
+
+  .channel-item:hover { border-color: var(--sol); }
+
+  .channel-icon { font-size: 20px; text-align: center; padding-top: 2px; }
+  .channel-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .channel-how { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* ── HACKATHON ── */
+  .hack-prize-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 560px) { .hack-prize-row { grid-template-columns: 1fr; } }
+
+  .prize-box {
+    border-radius: 4px;
+    padding: 18px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .prize-box.gold { background: #fffbe6; border-color: #d4af37; }
+  .prize-box.silver { background: #f8f8f8; border-color: #bbb; }
+  .prize-box.bronze { background: #fff4ef; border-color: #c87941; }
+
+  .prize-title { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .prize-amount { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1; color: var(--ink); margin-bottom: 4px; }
+  .prize-note { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); line-height: 1.5; }
+
+  .win-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 20px 0;
+  }
+
+  .win-rule {
+    display: flex;
+    gap: 16px;
+    align-items: start;
+    padding: 14px 16px;
+    background: white;
+    border-left: 3px solid var(--border);
+    transition: border-color 0.15s;
+  }
+
+  .win-rule:hover { border-left-color: var(--sol); }
+
+  .win-rule-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--sol);
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 30px;
+  }
+
+  .win-rule-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .win-rule-desc { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* ── PATIENCE SECTION ── */
+  .patience-block {
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 24px 0;
+    text-align: center;
+  }
+
+  .patience-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .patience-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 460px;
+    margin: 0 auto;
+    font-weight: 500;
+  }
+
+  .patience-sub strong { color: var(--ink); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 28px 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-left {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: 1px;
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  .footer-right a { color: var(--sol); text-decoration: none; }
+
+  /* REVEAL ANIMATIONS */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.5s forwards;
+  }
+
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal:nth-child(1) { animation-delay: 0.05s; }
+  .reveal:nth-child(2) { animation-delay: 0.1s; }
+  .reveal:nth-child(3) { animation-delay: 0.15s; }
+  .reveal:nth-child(4) { animation-delay: 0.2s; }
+  .reveal:nth-child(5) { animation-delay: 0.25s; }
+  .reveal:nth-child(6) { animation-delay: 0.3s; }
+
+  /* Divider */
+  .ruled { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  .inline-link {
+    color: var(--sol);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .inline-link:hover { border-bottom-color: var(--sol); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-tag">SuperteamNG Builder OS · May 2026</div>
+    <h1>BUILD<span class="highlight">RIGHT.</span></h1>
+    <div class="header-sub">
+      <p class="header-desc">No funding. No cofounder. No big following. No "GM fam" fake engagement. Here's exactly what to do — and what NOT to do.</p>
+      <div class="header-meta">
+        Based on @callmefeyi_<br>
+        Solana Ecosystem<br>
+        Next Hackathon → Sep 2026
+      </div>
+    </div>
+  </header>
+
+  <!-- MANDATE BANNER -->
+  <div class="mandate">
+    <div class="mandate-label">// The only rule</div>
+    <p class="mandate-text">
+      Build a <em>simple product</em> that solves a <em>real problem</em>. Not 10 features. Not "the everything app." Just <em>one thing</em> people actually need.
+    </p>
+  </div>
+
+  <!-- SECTION 1: STOP TRYING TO IMPRESS CT -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 01</span>
+      <span class="step-label">First thing to do</span>
+    </div>
+    <h2>STOP IMPRESSING CT</h2>
+    <p class="section-intro">Nobody cares yet. That's okay. Stop optimizing for attention you haven't earned. Start optimizing for a product that earns it.</p>
+
+    <div class="dual-cards">
+      <div class="card-stop">
+        <div class="card-header">✕ &nbsp;STOP doing this</div>
+        <ul class="card-list">
+          <li>Building a fancy landing page first</li>
+          <li>Talking about your token before your product</li>
+          <li>"Revolutionary protocol" threads with no demo</li>
+          <li>Chasing followers before you have users</li>
+          <li>Fake engagement loops — "GM fam" culture</li>
+          <li>10 features at once</li>
+        </ul>
+      </div>
+      <div class="card-do">
+        <div class="card-header">✓ &nbsp;DO this instead</div>
+        <ul class="card-list">
+          <li>Talk to 10 real people about their problem</li>
+          <li>Write the product brief before the code</li>
+          <li>Deploy something to devnet in week 1</li>
+          <li>Post a raw screenshot, not a polished render</li>
+          <li>Ask for feedback, not likes</li>
+          <li>Ship one thing completely</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: CHOOSE A NICHE -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 02</span>
+      <span class="step-label">Pick your lane</span>
+    </div>
+    <h2>CHOOSE A CLEAR NICHE</h2>
+    <p class="section-intro">"We're building for everyone" is how products die fast. Pick something specific. You can expand later. Right now, go deep, not wide.</p>
+
+    <div class="niche-grid">
+      <div class="niche-card active" onclick="toggleNiche(this)">
+        <div class="niche-icon">💸</div>
+        <div class="niche-name">Payments</div>
+        <div class="niche-why">Solana's speed + $0.001 fees make real payment products viable</div>
+        <div class="niche-rec">Best pick for Africa. Remittances, cross-border transfers, merchant payments. Massive unmet need. This is your lane → RemitChain.</div>
+      </div>
+      <div class="niche-card" onclick="toggleNiche(this)">
+        <div class="niche-icon">🤝</div>
+        <div class="niche-name">Community Tools</div>
+        <div class="niche-why">DAOs, contribution tracking, on-chain reputation</div>
+        <div class="niche-rec">Build tooling for SuperteamNG itself — solve problems you see in your own community first.</div>
+      </div>
+      <div class="niche-card" onclick="toggleNiche(this)">
+        <div class="niche-icon">📈</div>
+        <div class="niche-name">DeFi UX</div>
+        <div class="niche-why">Most DeFi is too hard. Better UX on existing protocols wins</div>
+        <div class="niche-rec">Don't build a new protocol. Build a better interface on top of Jupiter, Raydium, or Kamino.</div>
+      </div>
+      <div class="niche-card" onclick="toggleNiche(this)">
+        <div class="niche-icon">🎨</div>
+        <div class="niche-name">Creator Economy</div>
+        <div class="niche-why">On-chain subscriptions, tipping, fan tokens, direct support</div>
+        <div class="niche-rec">Nigerian creators, musicians, and writers have no good on-chain monetization tool. Build it for them.</div>
+      </div>
+      <div class="niche-card" onclick="toggleNiche(this)">
+        <div class="niche-icon">🚪</div>
+        <div class="niche-name">Onboarding</div>
+        <div class="niche-why">Most people still can't get into crypto without rage-quitting</div>
+        <div class="niche-rec">Build an onboarding flow so smooth your mum could use it. This is one of Solana's biggest unsolved problems.</div>
+      </div>
+    </div>
+    <p style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;">↑ Click each niche to see why it fits you</p>
+  </div>
+
+  <!-- SECTION 3: THE PROJECT -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 03</span>
+      <span class="step-label">The real-world problem to solve</span>
+    </div>
+    <h2>YOUR PROJECT: REMITCHAIN</h2>
+    <p class="section-intro">You're in SuperteamNG. Nigeria sends over $20 billion in remittances yearly. The average fee is 8–12%. That's billions stolen from families. Solana can fix this in a way no bank ever will.</p>
+
+    <div class="project-reveal">
+      <div class="project-name">RemitChain</div>
+      <div class="project-one-liner">// Cross-border transfers for the unbanked. Under $0.01. Under 1 second.</div>
+      <p class="project-insight">
+        A worker in the UK sends £200 to their mum in Lagos. Western Union takes £18 and 3 days. RemitChain takes £0.001 and 0.4 seconds. The receiver cashes out via a local agent or M-Pesa. No bank account needed. This is the product.
+      </p>
+      <div class="project-mvp">
+        <div class="project-mvp-label">// MVP scope — one thing, completely done</div>
+        <ul class="mvp-list">
+          <li>Sender connects Phantom, inputs amount + recipient phone number</li>
+          <li>USDC locks into on-chain escrow via Anchor program (PDA)</li>
+          <li>Receiver gets a claim link / QR code via SMS or WhatsApp</li>
+          <li>Receiver redeems through local agent OR direct to their wallet</li>
+          <li>That's it. Four steps. Ship that. Nothing else.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: TEST BEFORE ALL IN -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 04</span>
+      <span class="step-label">Test before you go all in</span>
+    </div>
+    <h2>SHIP FAST. WATCH. LISTEN.</h2>
+    <p class="section-intro">No assumptions. Just feedback. Your first version will be wrong. Ship it anyway. The feedback is the product.</p>
+
+    <div class="ship-loop">
+      <div class="loop-step">
+        <div class="loop-icon">🔨</div>
+        <div class="loop-name">Ship</div>
+        <div class="loop-sub">Devnet first</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="loop-icon">📢</div>
+        <div class="loop-name">Post publicly</div>
+        <div class="loop-sub">Raw, not polished</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="loop-icon">👥</div>
+        <div class="loop-name">Let people test</div>
+        <div class="loop-sub">5 real users</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="loop-icon">👁</div>
+        <div class="loop-name">Watch them</div>
+        <div class="loop-sub">Where do they break?</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="loop-icon">👂</div>
+        <div class="loop-name">Listen more</div>
+        <div class="loop-sub">Than you talk</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step" style="border-color:var(--sol);background:var(--sol-light);">
+        <div class="loop-icon">🔁</div>
+        <div class="loop-name">Fix & repeat</div>
+        <div class="loop-sub">Every week</div>
+      </div>
+    </div>
+
+    <hr class="ruled">
+
+    <!-- BUILD STEPS -->
+    <p style="font-size:14px;font-weight:700;margin-bottom:12px;">How to actually build RemitChain, step by step:</p>
+    <div class="build-steps">
+      <div class="build-step">
+        <div class="build-num">1</div>
+        <div class="build-body">
+          <div class="build-title">Write the Anchor Program — on-chain logic only</div>
+          <div class="build-desc">Two instructions: initiate_transfer (locks USDC into a PDA escrow) and claim_transfer (recipient signs to unlock). Add cancel_transfer for expired claims. Deploy to devnet. Test with Solana CLI. Nothing else yet.</div>
+          <div class="build-stack">
+            <span class="stack-tag tag-rust">Rust</span>
+            <span class="stack-tag tag-sol">Anchor</span>
+            <span class="stack-tag tag-sol">SPL Token / USDC</span>
+          </div>
+        </div>
+      </div>
+      <div class="build-step">
+        <div class="build-num">2</div>
+        <div class="build-body">
+          <div class="build-title">Build the sender interface</div>
+          <div class="build-desc">React app. Phantom wallet connect. Input: USD amount + recipient identifier. Button: "Send". Shows Solscan TX link on confirmation. That's the whole sender flow for MVP.</div>
+          <div class="build-stack">
+            <span class="stack-tag tag-react">React</span>
+            <span class="stack-tag tag-ts">TypeScript</span>
+            <span class="stack-tag tag-ts">@solana/web3.js</span>
+          </div>
+        </div>
+      </div>
+      <div class="build-step">
+        <div class="build-num">3</div>
+        <div class="build-body">
+          <div class="build-title">Build the claim page (mobile-first)</div>
+          <div class="build-desc">A single mobile page accessible via link or QR. Shows the amount waiting. Two options: "Connect wallet to claim" or "Find a local agent." This is what the receiver sees. Keep it stupid simple.</div>
+          <div class="build-stack">
+            <span class="stack-tag tag-react">React</span>
+            <span class="stack-tag tag-sol">Phantom Mobile</span>
+          </div>
+        </div>
+      </div>
+      <div class="build-step">
+        <div class="build-num">4</div>
+        <div class="build-body">
+          <div class="build-title">Test with real people in SuperteamNG</div>
+          <div class="build-desc">Send $2 of devnet USDC to 5 community members. Watch them try to claim it. Record what breaks. That feedback is worth more than 100 hours of solo building.</div>
+          <div class="build-stack">
+            <span class="stack-tag tag-sol">Devnet</span>
+          </div>
+        </div>
+      </div>
+      <div class="build-step">
+        <div class="build-num">5</div>
+        <div class="build-body">
+          <div class="build-title">Live demo — real money, mainnet</div>
+          <div class="build-desc">Send $5 USDC on mainnet during your demo video. Show the Solscan link. The transaction finalizes while you're still talking. That 0.4 seconds IS your pitch. Let the blockchain speak.</div>
+          <div class="build-stack">
+            <span class="stack-tag tag-sol">Mainnet</span>
+            <span class="stack-tag tag-ts">Solscan</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: DISTRIBUTION -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 05</span>
+      <span class="step-label">Building is not enough</span>
+    </div>
+    <h2>DISTRIBUTION IS THE PRODUCT</h2>
+    <p class="section-intro">A dead product with clean code is still a dead product. Distribution isn't marketing — it's survival. Start this on day one, not after you ship.</p>
+
+    <div class="channel-list">
+      <div class="channel-item">
+        <div class="channel-icon">🏆</div>
+        <div>
+          <div class="channel-name">Superteam Earn Bounties — <a class="inline-link" href="https://superteam.fun/earn" target="_blank">superteam.fun/earn</a></div>
+          <div class="channel-how">Get paid to build sub-components of your idea. Bounties = real feedback + money + reputation in the ecosystem. Do at least one bounty before the hackathon.</div>
+        </div>
+      </div>
+      <div class="channel-item">
+        <div class="channel-icon">🎙</div>
+        <div>
+          <div class="channel-name">SuperteamNG Community Calls</div>
+          <div class="channel-how">Show your demo on a community call. 5 minutes of real builders seeing your product live is worth 500 Twitter impressions. Ask for brutal feedback. You need it.</div>
+        </div>
+      </div>
+      <div class="channel-item">
+        <div class="channel-icon">🐦</div>
+        <div>
+          <div class="channel-name">Twitter / X — Build in Public</div>
+          <div class="channel-how">Post weekly: what you built, what broke, what a user said. Raw screenshots over polished graphics. Tag @superteamNG, @solana, @colosseum. One real build thread beats 30 GM posts.</div>
+        </div>
+      </div>
+      <div class="channel-item">
+        <div class="channel-icon">🤝</div>
+        <div>
+          <div class="channel-name">Partnerships — Early & Scrappy</div>
+          <div class="channel-how">DM one remittance company, one local fintech, or one diaspora community group. You don't need a partnership deck — you need a working demo and a honest conversation. Start there.</div>
+        </div>
+      </div>
+      <div class="channel-item">
+        <div class="channel-icon">👤</div>
+        <div>
+          <div class="channel-name">Real Users Giving Real Feedback</div>
+          <div class="channel-how">Find 10 Nigerians in the UK diaspora on Reddit, LinkedIn, or Facebook groups. Tell them you're building something that saves them 10% on every transfer home. They will test it. This is your beta.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: CONTENT -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 06</span>
+      <span class="step-label">Not branding — consistency</span>
+    </div>
+    <h2>CONTENT = TRUST</h2>
+    <p class="section-intro">People don't just support products anymore. They support builders. Show the journey, not just the destination.</p>
+
+    <div class="dual-cards">
+      <div class="card-stop">
+        <div class="card-header">✕ &nbsp;Don't post this</div>
+        <ul class="card-list">
+          <li>Polished brand graphics with no substance</li>
+          <li>Vague announcements: "Something big coming..."</li>
+          <li>Engagement bait: "RT to win SOL"</li>
+          <li>Thread about crypto in general, not your product</li>
+          <li>Metrics that don't matter: followers, likes</li>
+        </ul>
+      </div>
+      <div class="card-do">
+        <div class="card-header">✓ &nbsp;Post this instead</div>
+        <ul class="card-list">
+          <li>What you shipped this week (with screenshot)</li>
+          <li>A mistake you made and how you fixed it</li>
+          <li>Direct user feedback, verbatim</li>
+          <li>A product update — even small ones</li>
+          <li>One lesson from shipping: no fluff, one insight</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: HACKATHON -->
+  <div class="section">
+    <div class="section-eyebrow">
+      <span class="step-number">STEP 07</span>
+      <span class="step-label">The goal — Colosseum Hackathon, Sep 2026</span>
+    </div>
+    <h2>WIN THE HACKATHON</h2>
+    <p class="section-intro">Frontier just closed (May 11). The next one runs approximately September 25 – October 30, 2026. That's your target. Four months to prepare properly.</p>
+
+    <div class="hack-prize-row">
+      <div class="prize-box gold">
+        <div class="prize-title">Grand Champion</div>
+        <div class="prize-amount">$30K</div>
+        <div class="prize-note">Most impactful product submission</div>
+      </div>
+      <div class="prize-box silver">
+        <div class="prize-title">Top 20 Startups</div>
+        <div class="prize-amount">$10K</div>
+        <div class="prize-note">Each. RemitChain qualifies here minimum.</div>
+      </div>
+      <div class="prize-box bronze">
+        <div class="prize-title">Accelerator</div>
+        <div class="prize-amount">$250K</div>
+        <div class="prize-note">Pre-seed for 10+ winners. The real prize.</div>
+      </div>
+    </div>
+
+    <div class="win-rules">
+      <div class="win-rule">
+        <div class="win-rule-num">1</div>
+        <div>
+          <div class="win-rule-title">Working demo on mainnet, full stop</div>
+          <div class="win-rule-desc">This separates you from 80% of submissions. A live Solscan link during your demo video is more convincing than any pitch deck slide.</div>
+        </div>
+      </div>
+      <div class="win-rule">
+        <div class="win-rule-num">2</div>
+        <div>
+          <div class="win-rule-title">Make judges feel the problem in 30 seconds</div>
+          <div class="win-rule-desc">Open with: "A worker in the UK pays £18 to send £200 home. I built the fix." That's your hook. The rest of the demo proves it.</div>
+        </div>
+      </div>
+      <div class="win-rule">
+        <div class="win-rule-num">3</div>
+        <div>
+          <div class="win-rule-title">Show a business model, not just a product</div>
+          <div class="win-rule-desc">Colosseum is a startup accelerator. Show unit economics: 0.5% fee = still 10x cheaper than Western Union. They back founders, not features.</div>
+        </div>
+      </div>
+      <div class="win-rule">
+        <div class="win-rule-num">4</div>
+        <div>
+          <div class="win-rule-title">Explain WHY Solana specifically</div>
+          <div class="win-rule-desc">Don't say "blockchain." Say: "400ms finality means the money arrives before the sender puts their phone down. $0.001 fees mean we can serve $10 transfers profitably. Nothing else makes this possible."</div>
+        </div>
+      </div>
+      <div class="win-rule">
+        <div class="win-rule-num">5</div>
+        <div>
+          <div class="win-rule-title">Bring real users to the submission</div>
+          <div class="win-rule-desc">Even 5 people who used your testnet and left a quote or review. Traction — any traction — signals product-market fit over most teams who have zero.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: PATIENCE -->
+  <div class="section" style="border-bottom:none;">
+    <div class="section-eyebrow">
+      <span class="step-number">FINAL NOTE</span>
+      <span class="step-label">The most important thing</span>
+    </div>
+    <h2>STAY PATIENT</h2>
+
+    <div class="patience-block">
+      <div class="patience-big">YOUR FIRST PRODUCT MIGHT FLOP.</div>
+      <p class="patience-sub">
+        Your first tweet might get ignored. Your first launch may do zero numbers.<br><br>
+        <strong>That's not failure. That's the process.</strong><br><br>
+        If you keep building, learning, and shipping the right way — it will click. Every builder you look up to has a graveyard of dead projects behind them. The difference is they kept going.
+      </p>
+    </div>
+
+    <div class="dual-cards" style="margin-top:0">
+      <div class="card-stop">
+        <div class="card-header">✕ &nbsp;The wrong loop</div>
+        <ul class="card-list">
+          <li>Build → wait for attention → get discouraged → quit</li>
+        </ul>
+      </div>
+      <div class="card-do">
+        <div class="card-header">✓ &nbsp;The right loop</div>
+        <ul class="card-list">
+          <li>Build → ship → get feedback → improve → ship again → repeat</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">SOLANA BUILDER OS · SUPERTEAMNG</div>
+    <div class="footer-right">
+      <a href="https://superteam.fun/earn" target="_blank">superteam.fun/earn</a> · <a href="https://colosseum.com" target="_blank">colosseum.com</a><br>
+      <a href="https://solana.com/developers" target="_blank">solana.com/developers</a> · <a href="https://anchor-lang.com" target="_blank">anchor-lang.com</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  function toggleNiche(el) {
+    document.querySelectorAll('.niche-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
